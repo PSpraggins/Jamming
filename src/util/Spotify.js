@@ -1,5 +1,5 @@
 const clientId = ''; // Insert client ID here.
-const redirectUri = 'http://jamming-jams.surge.sh'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
+const redirectUri = 'http://localhost:3000/'; //http://jamming-jams.surge.sh Have to add this to your accepted Spotify redirect URIs on the Spotify API.
 let accessToken;
 
 const Spotify = {
@@ -39,7 +39,8 @@ const Spotify = {
         name: track.name,
         artist: track.artists[0].name,
         album: track.album.name,
-        uri: track.uri
+        uri: track.uri,
+        preview: track.preview_url
       }));
     });
   },

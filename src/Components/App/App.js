@@ -21,17 +21,22 @@ class App extends React.Component {
         this.updatePlaylistName = this.updatePlaylistName.bind(this);
         this.savePlaylist = this.savePlaylist.bind(this);
         this.search = this.search.bind(this);
+        this.updateResults = this.updateResults.bind(this);
+       
     }
  
     addTrack(track){
-        console.log('adding track');
         let tracks = this.state.playlistTracks;
         if(tracks.find(savedTrack => savedTrack.id === track.id)){
            return;
         } 
         tracks.push(track);
-        this.setState({playlistTracks: tracks});
-        
+        this.setState({
+            playlistTracks: tracks,
+            searchResults: this.updateResults(this.state.searchResults)
+        });
+
+        console.log(this.state.playlistTracks);
         
     }
     removeTrack(track){
@@ -46,25 +51,35 @@ class App extends React.Component {
     savePlaylist(){
         const trackUris = this.state.playlistTracks.map(track => track.uri);
         Spotify.savePlaylist(this.state.playlistName, trackUris).then(() => {
-            console.log('reset playlist Name and playlist tracks to empty array');
             this.setState({
                 playlistName: 'New Playlist',
                 playlistTracks: []
               });
-              console.log(this.state.playlistName);
+              
         });
         
     }
 
     search(searchTerm){
         Spotify.search(searchTerm).then(searchResults => {
+            
+          let results = this.updateResults(searchResults);
           this.setState({
-              searchResults: searchResults
+              searchResults: results
           });
+          
+         
         });
-       
     }
-
+    //Checks to see if any tracks from the searchResults from Spotify API are in the playlist and filters
+    //them out
+    updateResults(searchResults){
+        let results = searchResults;
+        let tracks = JSON.stringify(this.state.playlistTracks);
+        let newResults = results.filter(result => !tracks.includes(result.id));
+        return newResults;
+    }
+  
     render() {
         
         return (
@@ -73,7 +88,7 @@ class App extends React.Component {
                 <div className="App">
                     <SearchBar onSearch={this.search} />
                     <div className="App-playlist">
-                        <SearchResults searchResults = {this.state.searchResults}  onAdd = {this.addTrack}/>
+                        <SearchResults searchResults = {this.state.searchResults}   playlistTracks = {this.state.playlistTracks} onAdd = {this.addTrack}/>
                         <Playlist playlistName = {this.state.playlistName} playlistTracks = {this.state.playlistTracks} onNameChange = {this.updatePlaylistName} onRemove = {this.removeTrack} onSave = {this.savePlaylist}/>
                     </div>
                 </div>
